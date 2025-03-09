@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
             } else if ([arg isEqualToString:@"--quiet"] || [arg isEqualToString:@"-q"]) {
                 manager.quietMode = YES;
             } else if ([arg isEqualToString:@"--version"] || [arg isEqualToString:@"-v"]) {
-                printf("DualKeyboard version 2.0.0\n");
+                printf("DualKeyboard version 3.0.0\n");
                 return 0;
             } else if ([arg isEqualToString:@"--help"] || [arg isEqualToString:@"-h"]) {
                 printf("Usage: dual [OPTIONS]\n\n"

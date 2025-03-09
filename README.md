@@ -1,6 +1,6 @@
 ![Dual Wielding](dual.jpg)
 
-# DualKeyboard v2.0.0
+# DualKeyboard v3.0.0
 
 ## Warning and a suggestion
 

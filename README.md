@@ -29,11 +29,11 @@ DualKeyboard is **not mine.** It was written by Chance Miller of [http://dotdotc
 
 ## Usage
 
-To use, simply compile using `Makefile` and then run `./dual`. You may need to check "Enable access for assistive devices" in the Universal Access preference pane if you haven't done so already.
+To use, simply compile using `Makefile` and then run `./bin/dual`. You may need to check "Enable access for assistive devices" in the Universal Access preference pane if you haven't done so already.
 
 ```
 make
-./dual [OPTIONS]
+./bin/dual [OPTIONS]
 ```
 
 Available options:
@@ -46,6 +46,7 @@ Available options:
 
 - **Escape + Control + Space**: Exit the program
 - **Escape + 0**: Restart the program (exit and launch again)
+- **Escape + -**: Toggle debug messages (only when debug mode is active and quiet mode is not enabled)
 - **CapsLock (tap)**: Send Escape key
 - **CapsLock (hold) + h/j/k/l**: Arrow keys (left/down/up/right)
 - **CapsLock (hold) + i/o**: Page Up/Page Down
@@ -58,12 +59,22 @@ Available options:
 The program shows the current state in the terminal:
 - Shows current mode (I for Insert, N for Navigation)
 - Displays mode changes in real-time
+- Shows debug messages when enabled (can be toggled with Escape + -)
 - Can be disabled with `-q` flag for background operation
 
 ## LaunchAgent/LaunchDaemon Setup
 
-When using DualKeyboard as a background service, use the quiet mode flag:
+When using DualKeyboard as a background service, use the quiet mode flag. You can set it up either as a LaunchAgent (per-user) or LaunchDaemon (system-wide).
 
+### System-wide Installation (LaunchDaemon)
+
+1. Create the LaunchDaemon configuration:
+```
+sudo touch /Library/LaunchDaemons/com.user.dualkeyboard.plist
+sudo nano /Library/LaunchDaemons/com.user.dualkeyboard.plist
+```
+
+2. Add the following configuration:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -73,7 +84,7 @@ When using DualKeyboard as a background service, use the quiet mode flag:
     <string>com.user.dualkeyboard</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/path/to/dual</string>
+        <string>/path/to/bin/dual</string>
         <string>-q</string>
     </array>
     <key>RunAtLoad</key>
@@ -82,6 +93,55 @@ When using DualKeyboard as a background service, use the quiet mode flag:
     <true/>
 </dict>
 </plist>
+```
+
+3. Set proper permissions:
+```
+sudo chown root:wheel /Library/LaunchDaemons/com.user.dualkeyboard.plist
+sudo chmod 644 /Library/LaunchDaemons/com.user.dualkeyboard.plist
+```
+
+4. Load and start the service:
+```
+# macOS 10.10 or later (recommended)
+sudo launchctl bootstrap system /Library/LaunchDaemons/com.user.dualkeyboard.plist
+
+# Legacy method (pre-10.10)
+sudo launchctl load -w /Library/LaunchDaemons/com.user.dualkeyboard.plist
+```
+
+### Managing the Service
+
+Check if the service is running:
+```
+sudo launchctl list | grep dualkeyboard
+```
+
+Stop and unload the service:
+```
+# macOS 10.10 or later (recommended)
+sudo launchctl bootout system /Library/LaunchDaemons/com.user.dualkeyboard.plist
+
+# Legacy method (pre-10.10)
+sudo launchctl unload -w /Library/LaunchDaemons/com.user.dualkeyboard.plist
+```
+
+Restart the service:
+```
+sudo launchctl bootout system /Library/LaunchDaemons/com.user.dualkeyboard.plist
+sudo launchctl bootstrap system /Library/LaunchDaemons/com.user.dualkeyboard.plist
+```
+
+### Troubleshooting
+
+View service logs:
+```
+sudo log show --predicate 'processImagePath contains "dual"' --last 1h
+```
+
+Check service status:
+```
+sudo launchctl print system/com.user.dualkeyboard
 ```
 
 ## Emergency Restore

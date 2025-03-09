@@ -222,11 +222,14 @@ static mach_timebase_info_data_t timebaseInfo;
     }
 
     // Handle mode locking shortcuts
-    if (keycode == 18 && type == kCGEventKeyDown) { // Escape + 1
-        vimModeLocked = YES;
-        vimModeActive = YES;
-        [self updateStatusWithMode:'N'];
-        return YES;
+    if (keycode == 18 && type == kCGEventKeyDown) { // 1 key pressed
+        // Check if escape is held using raw keyboard state
+        if (CGEventSourceKeyState(kCGEventSourceStateHIDSystemState, 53)) { // If escape is held
+            vimModeLocked = YES;
+            vimModeActive = YES;
+            [self updateStatusWithMode:'N'];
+            return YES;
+        }
     }
 
     if (capsKeyDown && keycode == 45 && type == kCGEventKeyDown) { // CapsLock + N

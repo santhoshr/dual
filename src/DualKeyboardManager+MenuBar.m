@@ -5,8 +5,6 @@
 @implementation DualKeyboardManager (MenuBar)
 
 - (void)setupMenuBar {
-    if (self.quietMode) return;
-    
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     self.statusItem.button.title = @"⌨️ I";
     
@@ -14,13 +12,14 @@
     [self.statusMenu addItemWithTitle:@"Mode: Insert" action:nil keyEquivalent:@""];
     [self.statusMenu addItem:[NSMenuItem separatorItem]];
     
-    NSMenuItem *debugItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"Debug: %@", self.debugMode ? @"ON" : @"OFF"] 
-                                                      action:@selector(toggleDebugMode) 
-                                               keyEquivalent:@""];
-    [debugItem setTarget:self];
-    [self.statusMenu addItem:debugItem];
-    
-    [self.statusMenu addItem:[NSMenuItem separatorItem]];
+    if (!self.quietMode) {
+        NSMenuItem *debugItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"Debug: %@", self.debugMode ? @"ON" : @"OFF"] 
+                                                          action:@selector(toggleDebugMode) 
+                                                   keyEquivalent:@""];
+        [debugItem setTarget:self];
+        [self.statusMenu addItem:debugItem];
+        [self.statusMenu addItem:[NSMenuItem separatorItem]];
+    }
     
     NSMenuItem *exitItem = [[NSMenuItem alloc] initWithTitle:@"Exit" 
                                                      action:@selector(exitApplication) 
@@ -32,7 +31,7 @@
 }
 
 - (void)updateMenuBarStatus {
-    if (self.quietMode || !self.statusItem) return;
+    if (!self.statusItem) return;
     
     NSString *modeTitle = [NSString stringWithFormat:@"⌨️ %c", self.currentMode];
     self.statusItem.button.title = modeTitle;
@@ -41,9 +40,11 @@
     modeItem.title = [NSString stringWithFormat:@"Mode: %@", 
                       self.currentMode == 'I' ? @"Insert" : @"Navigation"];
     
-    NSMenuItem *debugItem = [self.statusMenu itemAtIndex:2];
-    debugItem.title = [NSString stringWithFormat:@"Debug: %@", 
-                      self.debugMode ? @"ON" : @"OFF"];
+    if (!self.quietMode) {
+        NSMenuItem *debugItem = [self.statusMenu itemAtIndex:2];
+        debugItem.title = [NSString stringWithFormat:@"Debug: %@", 
+                          self.debugMode ? @"ON" : @"OFF"];
+    }
 }
 
 - (void)toggleDebugMode {

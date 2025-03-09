@@ -1,6 +1,7 @@
 #import "../include/DualKeyboard.h"
 #import "DualKeyboardManager+KeyboardStatus.h"
 #import "DualKeyboardManager+KeyboardMapping.h"
+#import "DualKeyboardManager+CapsNavigation.h"
 
 // Mode constants
 #define MODE_INSERT 'I'

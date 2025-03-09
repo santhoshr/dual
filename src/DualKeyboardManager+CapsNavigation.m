@@ -125,6 +125,31 @@ static mach_timebase_info_data_t timebaseInfo;
         }
     }
 
+    // Handle navigation keys when CapsLock is held
+    if (capsKeyDown && type == kCGEventKeyDown && !vimModeLocked) {
+        // Check if it's a navigation key
+        switch (keycode) {
+            case 4:  // h
+            case 38: // j
+            case 40: // k
+            case 37: // l
+            case 34: // i
+            case 31: // o
+            case 43: // comma
+            case 47: // dot
+                if (!vimModeActive) {
+                    vimModeActive = YES;
+                    [self updateStatusWithMode:'N'];
+                    if (self.debugMode) {
+                        NSLog(@"Entering vim mode via navigation key %d", (int)keycode);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     // Handle vim navigation mode
     if ((vimModeActive || vimModeLocked) && type == kCGEventKeyDown) {
         // Handle Shift+I to exit vim mode when locked

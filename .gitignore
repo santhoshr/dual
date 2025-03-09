@@ -1,10 +1,16 @@
-# Object files
+# Object files and directories
 *.o
 obj/
+cfiles/
 
 # Binary/executable
-bin/dual
+bin/
 dual
 
 # macOS specific
-.DS_Store 
+.DS_Store
+
+# IDE
+.vscode/
+*.xcodeproj/
+*.xcworkspace/

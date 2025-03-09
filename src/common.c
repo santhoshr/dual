@@ -193,4 +193,4 @@ void cleanup_single_instance(void) {
         // Remove the lock file
         unlink(LOCK_FILE);
     }
-} 
+}

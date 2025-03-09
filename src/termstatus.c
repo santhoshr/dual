@@ -6,7 +6,7 @@ static char current_mode = MODE_INSERT;
 void setup_status_bar() {
     if (quiet_mode) return;
     
-    printf("\033[1;36mDual Keyboard Mode\033[0m\n");
+    printf("\033[1;36mDual Keyboard\033[0m\n");
     printf("Current Mode: \033[1;32m%c\033[0m | Debug: \033[1;33m%s\033[0m\n", 
            current_mode, debug_mode ? "ON" : "OFF");
     fflush(stdout);

@@ -37,10 +37,11 @@
 #define KEYCODE_ZERO 29        // 0 key
 #define KEYCODE_ONE 18         // 1 key
 #define KEYCODE_N 45           // N key
+#define KEYCODE_MINUS 27       // - key
 
 // Global variables
 extern bool debug_mode;
-extern bool quiet_mode;  // New flag for quiet mode
+extern bool quiet_mode;
 extern int lock_fd;
 extern bool should_restart;
 
@@ -58,4 +59,4 @@ bool is_another_instance_running();
 void debug_print_key(CGKeyCode keycode, CGEventType type);
 uint64_t get_current_time_ns();
 
-#endif // COMMON_H 
+#endif // COMMON_H

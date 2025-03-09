@@ -31,7 +31,9 @@ myCGEventCallback(CGEventTapProxy proxy, CGEventType type,
     CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     
     // Print debug info if debug mode is on
-    debug_print_key(keycode, type);
+    if (debug_mode && !quiet_mode) {
+        debug_print_key(keycode, type);
+    }
     
     // Track keys for exit combination (Escape + Control + Space)
     if (keycode == KEYCODE_ESCAPE) {
@@ -52,6 +54,8 @@ myCGEventCallback(CGEventTapProxy proxy, CGEventType type,
         space_pressed = (type == kCGEventKeyDown);
     } else if (keycode == KEYCODE_ZERO) {
         zero_pressed = (type == kCGEventKeyDown);
+    } else if (keycode == KEYCODE_MINUS) {
+        minus_pressed = (type == kCGEventKeyDown);
     }
     
     // Check for exit combination
@@ -187,6 +191,15 @@ myCGEventCallback(CGEventTapProxy proxy, CGEventType type,
         return NULL; // Suppress the n key
     }
     
+    // Check for debug message toggle (Escape + -)
+    if (escape_pressed && minus_pressed && type == kCGEventKeyDown) {
+        if (!quiet_mode) {
+            debug_mode = !debug_mode;
+            printf("\nDebug messages %s\n", debug_mode ? "enabled" : "disabled");
+            return NULL; // Suppress the minus key
+        }
+    }
+
     // Handle Vim navigation when in vim mode (either active or locked)
     if ((caps_key_down || vim_mode_locked) && type == kCGEventKeyDown) {
         // Create a new event source for better event handling
@@ -458,4 +471,4 @@ main(int argc, char* argv[])
 
 static void handle_signal(int signum) {
     cleanup_and_exit();
-} 
+}

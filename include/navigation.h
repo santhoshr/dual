@@ -17,6 +17,7 @@ extern bool escape_pressed;
 extern bool control_pressed;
 extern bool space_pressed;
 extern bool zero_pressed;
+extern bool minus_pressed;  // Track minus key state
 
 // Modifier key states
 extern bool ctr;
@@ -24,4 +25,4 @@ extern bool sft;
 extern bool cmd;
 extern bool opt;
 
-#endif // NAVIGATION_H 
+#endif // NAVIGATION_H

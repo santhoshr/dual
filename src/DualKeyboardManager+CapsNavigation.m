@@ -109,17 +109,39 @@ static mach_timebase_info_data_t timebaseInfo;
                 NSLog(@"CapsLock released, hold duration: %llu ns", holdDuration);
             }
             
-            if (!vimModeLocked) {
-                if (holdDuration < HOLD_THRESHOLD) {
-                    // Only send Escape if we never entered vim mode
-                    if (!vimModeActive) {
-                        [self sendEscapeKey];
+            // If it was a quick tap and we're in locked navigation mode, exit it
+            if (holdDuration < HOLD_THRESHOLD) {
+                if (vimModeLocked) {
+                    vimModeLocked = NO;
+                    vimModeActive = NO;
+                    [self updateStatusWithMode:'I'];
+                    if (self.debugMode) {
+                        NSLog(@"Exiting vim mode via CapsLock tap");
                     }
+                } else if (!vimModeActive) {
+                    [self sendEscapeKey];
                 }
-                // Always exit vim mode on release unless locked
+            }
+            
+            if (!vimModeLocked) {
                 vimModeActive = NO;
                 capsKeyPressTime = 0;  // Reset press time
                 [self updateStatusWithMode:'I'];
+            }
+            return YES;
+        }
+    }
+
+    // Handle Escape key for exiting navigation mode
+    if (keycode == 53 && type == kCGEventKeyDown) {
+        if (vimModeLocked) {
+            vimModeLocked = NO;
+            vimModeActive = NO;
+            capsKeyDown = NO;
+            capsKeyPressTime = 0;
+            [self updateStatusWithMode:'I'];
+            if (self.debugMode) {
+                NSLog(@"Exiting vim mode via Escape");
             }
             return YES;
         }

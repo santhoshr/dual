@@ -3,6 +3,7 @@
 #import "DualKeyboardManager+KeyboardMapping.h"
 #import "DualKeyboardManager+CapsNavigation.h"
 #import "DualKeyboardManager+MenuBar.h"
+#import "DualKeyboardManager+SingleInstance.h"
 
 // Mode constants
 #define MODE_INSERT 'I'
@@ -83,7 +84,7 @@ static CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type, CGEvent
 - (void)cleanup {
     [self cleanupStatusBar];
     [self restoreCapsLockMapping];
-    // Note: No need to explicitly cleanup menubar as it's handled by system
+    [self cleanupSingleInstance];
 }
 
 @end

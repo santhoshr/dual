@@ -1,9 +1,11 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import "../include/DualKeyboard.h"
+#import "DualKeyboardManager+SingleInstance.h"
 
 void handleSignal(int sig) {
     [[DualKeyboardManager sharedInstance] cleanup];
+    [[DualKeyboardManager sharedInstance] cleanupSingleInstance];
     exit(0);
 }
 
@@ -36,6 +38,11 @@ int main(int argc, const char * argv[]) {
             }
         }
         
+        // Check for another instance
+        if (![manager ensureSingleInstance]) {
+            return 1;
+        }
+        
         // Set up signal handlers
         signal(SIGINT, handleSignal);
         signal(SIGTERM, handleSignal);
@@ -43,6 +50,7 @@ int main(int argc, const char * argv[]) {
         // Start the event tap
         if (![manager startEventTap]) {
             fprintf(stderr, "Failed to start event tap\n");
+            [manager cleanupSingleInstance];
             return 1;
         }
         

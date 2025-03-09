@@ -15,7 +15,5 @@
 + (instancetype)sharedInstance;
 - (BOOL)startEventTap;
 - (void)cleanup;
-- (void)setupMenuBar;
-- (void)updateMenuBarStatus;
 
 @end

@@ -7,32 +7,6 @@
 #define MODE_INSERT 'I'
 #define MODE_NAVIGATION 'N'
 
-// Key state tracking
-static BOOL vimModeActive = NO;
-static BOOL vimModeLocked = NO;
-static BOOL capsKeyDown = NO;
-static uint64_t capsKeyPressTime = 0;
-static BOOL keyRepeat = NO;
-
-// Key tracking
-static BOOL escapePressed = NO;
-static BOOL controlPressed = NO;
-static BOOL spacePressed = NO;
-static BOOL zeroPressed = NO;
-static BOOL minusPressed = NO;
-
-// Modifier states
-static BOOL ctr = NO;
-static BOOL sft = NO;
-static BOOL cmd = NO;
-static BOOL opt = NO;
-
-// Constants
-static const uint64_t HOLD_THRESHOLD = 150000000ULL; // 150ms in nanoseconds
-
-// Modifier flags to maintain state across keyboards
-static CGEventFlags currentModifiers = 0;
-
 @interface DualKeyboardManager ()
 @property (nonatomic, strong) id eventTap;
 @end

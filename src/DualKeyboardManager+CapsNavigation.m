@@ -76,6 +76,7 @@ static mach_timebase_info_data_t timebaseInfo;
         
         if (type == kCGEventKeyDown) {
             BOOL isRepeat = (CGEventGetIntegerValueField(event, kCGKeyboardEventAutorepeat) != 0);
+            uint64_t holdDuration = [self getHoldDurationInNanoseconds:currentTime];
             
             if (!capsKeyDown && !isRepeat) {
                 capsKeyDown = YES;
@@ -84,18 +85,17 @@ static mach_timebase_info_data_t timebaseInfo;
                 if (self.debugMode) {
                     NSLog(@"CapsLock pressed at %llu", capsKeyPressTime);
                 }
-            } else if (isRepeat) {
-                keyRepeat = YES;
-                uint64_t holdDuration = [self getHoldDurationInNanoseconds:currentTime];
-                
-                if (!vimModeActive && !vimModeLocked && holdDuration >= HOLD_THRESHOLD) {
-                    vimModeActive = YES;
-                    [self updateStatusWithMode:'N'];
-                    if (self.debugMode) {
-                        NSLog(@"Entering vim mode (hold duration: %llu ns)", holdDuration);
-                    }
+            }
+            
+            // Check hold duration on every key down event, not just repeats
+            if (capsKeyDown && !vimModeActive && !vimModeLocked && holdDuration >= HOLD_THRESHOLD) {
+                vimModeActive = YES;
+                [self updateStatusWithMode:'N'];
+                if (self.debugMode) {
+                    NSLog(@"Entering vim mode (hold duration: %llu ns)", holdDuration);
                 }
             }
+            
             return YES;
             
         } else if (type == kCGEventKeyUp) {
@@ -104,7 +104,6 @@ static mach_timebase_info_data_t timebaseInfo;
             uint64_t holdDuration = [self getHoldDurationInNanoseconds:currentTime];
             capsKeyDown = NO;
             keyRepeat = NO;
-            capsKeyPressTime = 0;  // Reset press time
             
             if (self.debugMode) {
                 NSLog(@"CapsLock released, hold duration: %llu ns", holdDuration);
@@ -112,11 +111,14 @@ static mach_timebase_info_data_t timebaseInfo;
             
             if (!vimModeLocked) {
                 if (holdDuration < HOLD_THRESHOLD) {
+                    // Only send Escape if we never entered vim mode
                     if (!vimModeActive) {
                         [self sendEscapeKey];
                     }
                 }
+                // Always exit vim mode on release unless locked
                 vimModeActive = NO;
+                capsKeyPressTime = 0;  // Reset press time
                 [self updateStatusWithMode:'I'];
             }
             return YES;

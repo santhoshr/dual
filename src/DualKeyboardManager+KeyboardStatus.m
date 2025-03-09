@@ -1,4 +1,5 @@
 #import "DualKeyboardManager+KeyboardStatus.h"
+#import "DualKeyboardManager+MenuBar.h"
 
 @implementation DualKeyboardManager (KeyboardStatus)
 
@@ -15,6 +16,7 @@
     if (mode == self.currentMode) return;
     
     self.currentMode = mode;
+    [self updateMenuBarStatus];  // Update menubar when mode changes
     
     if (!self.quietMode) {
         printf("\033[1;33mMode Changed\033[0m -> Current: \033[1;32m%c\033[0m | Debug: \033[1;33m%s\033[0m\n",

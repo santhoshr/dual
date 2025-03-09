@@ -2,6 +2,7 @@
 #import "DualKeyboardManager+KeyboardStatus.h"
 #import "DualKeyboardManager+KeyboardMapping.h"
 #import "DualKeyboardManager+CapsNavigation.h"
+#import "DualKeyboardManager+MenuBar.h"
 
 // Mode constants
 #define MODE_INSERT 'I'
@@ -35,6 +36,7 @@
 - (BOOL)startEventTap {
     [self setupCapsLockRemapping];
     [self setupStatusBar];
+    [self setupMenuBar];  // Add menubar setup
     
     CGEventMask eventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventFlagsChanged));
     CFMachPortRef tap = CGEventTapCreate(kCGSessionEventTap,
@@ -81,6 +83,7 @@ static CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type, CGEvent
 - (void)cleanup {
     [self cleanupStatusBar];
     [self restoreCapsLockMapping];
+    // Note: No need to explicitly cleanup menubar as it's handled by system
 }
 
 @end

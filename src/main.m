@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 #import "../include/DualKeyboard.h"
 
 void handleSignal(int sig) {
@@ -8,6 +9,10 @@ void handleSignal(int sig) {
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
+        // Initialize NSApplication
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        
         DualKeyboardManager *manager = [DualKeyboardManager sharedInstance];
         
         // Parse command line arguments
@@ -42,7 +47,7 @@ int main(int argc, const char * argv[]) {
         }
         
         // Run the main loop
-        [[NSRunLoop currentRunLoop] run];
+        [NSApp run];
     }
     return 0;
 }

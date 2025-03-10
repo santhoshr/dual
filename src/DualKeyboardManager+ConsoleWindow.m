@@ -56,6 +56,7 @@ static char originalStdoutFdKey;
 }
 
 - (void)createConsoleWindowIfNeeded {
+    NSLog(@"Creating Console window if needed");
     if (self.consoleWindow != nil) return;
     
     // Create window first
@@ -137,6 +138,7 @@ static char originalStdoutFdKey;
             [fileHandle waitForDataInBackgroundAndNotify];
         }
     }];
+    NSLog(@"Console window created");
 }
 
 - (void)toggleAlwaysOnTop:(NSButton *)sender {

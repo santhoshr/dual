@@ -14,4 +14,6 @@ extern BOOL rightOptionDown;
 @interface DualKeyboardManager (KeyboardMapping)
 - (BOOL)handleKeyEvent:(CGEventRef)event ofType:(CGEventType)type withKeycode:(CGKeyCode)keycode;
 - (void)restartApplication;
+- (CGEventFlags)computeCombinedModifierFlags;
+- (void)notifyModifierChanges:(CGKeyCode)keycode flags:(CGEventFlags)flags modifierChanged:(BOOL)modifierChanged;
 @end

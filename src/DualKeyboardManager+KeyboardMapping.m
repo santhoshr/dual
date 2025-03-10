@@ -25,6 +25,59 @@ BOOL rightOptionDown = NO;
 
 @implementation DualKeyboardManager (KeyboardMapping)
 
+- (CGEventFlags)computeCombinedModifierFlags {
+    CGEventFlags combinedFlags = 0;
+    if (leftShiftDown || rightShiftDown) combinedFlags |= kCGEventFlagMaskShift;
+    if (leftControlDown || rightControlDown) combinedFlags |= kCGEventFlagMaskControl;
+    if (leftOptionDown || rightOptionDown) combinedFlags |= kCGEventFlagMaskAlternate;
+    if (leftCommandDown || rightCommandDown) combinedFlags |= kCGEventFlagMaskCommand;
+    return combinedFlags;
+}
+
+// Centralized method to notify all UI elements about modifier changes
+- (void)notifyModifierChanges:(CGKeyCode)keycode flags:(CGEventFlags)flags modifierChanged:(BOOL)modifierChanged {
+    // Update control pressed state for shortcuts
+    controlPressed = leftControlDown || rightControlDown;
+    
+    // Log modifier changes explicitly for debug purposes
+    if (self.debugMode && modifierChanged) {
+        NSString *modifierName = @"unknown";
+        NSString *modifierState = @"unknown";
+        
+        switch (keycode) {
+            case 56: modifierName = @"Left Shift"; modifierState = leftShiftDown ? @"DOWN" : @"UP"; break;
+            case 60: modifierName = @"Right Shift"; modifierState = rightShiftDown ? @"DOWN" : @"UP"; break;
+            case 59: modifierName = @"Left Control"; modifierState = leftControlDown ? @"DOWN" : @"UP"; break;
+            case 62: modifierName = @"Right Control"; modifierState = rightControlDown ? @"DOWN" : @"UP"; break;
+            case 58: modifierName = @"Left Option"; modifierState = leftOptionDown ? @"DOWN" : @"UP"; break;
+            case 61: modifierName = @"Right Option"; modifierState = rightOptionDown ? @"DOWN" : @"UP"; break;
+            case 55: modifierName = @"Left Command"; modifierState = leftCommandDown ? @"DOWN" : @"UP"; break;
+            case 54: modifierName = @"Right Command"; modifierState = rightCommandDown ? @"DOWN" : @"UP"; break;
+        }
+        
+        NSString *debugMsg = [NSString stringWithFormat:@"Modifier: %@ is %@ [cmd:%d ctrl:%d opt:%d shift:%d]\n",
+                           modifierName, modifierState,
+                           (leftCommandDown || rightCommandDown) ? 1 : 0,
+                           (leftControlDown || rightControlDown) ? 1 : 0,
+                           (leftOptionDown || rightOptionDown) ? 1 : 0,
+                           (leftShiftDown || rightShiftDown) ? 1 : 0];
+        
+        if ([NSApp isRunningFromCommandLine]) {
+            printf("%s", [debugMsg UTF8String]);
+            fflush(stdout);
+        } else {
+            [self appendToConsole:debugMsg];
+        }
+    }
+    
+    // Update key display with current modifiers state for immediate feedback
+    if (modifierChanged) {
+        [self updateKeyDisplay:keycode flags:flags isKeyDown:YES];
+        // Also refresh the key display modifiers to ensure it's fully up to date
+        [self refreshKeyDisplayModifiers];
+    }
+}
+
 - (void)restartApplication {
     NSString *executablePath = [[NSBundle mainBundle] executablePath];
     NSTask *task = [[NSTask alloc] init];
@@ -109,52 +162,12 @@ BOOL rightOptionDown = NO;
                 break;
         }
         
-        // Build combined modifier flags
-        CGEventFlags newFlags = 0;
-        if (leftShiftDown || rightShiftDown) newFlags |= kCGEventFlagMaskShift;
-        if (leftControlDown || rightControlDown) newFlags |= kCGEventFlagMaskControl;
-        if (leftOptionDown || rightOptionDown) newFlags |= kCGEventFlagMaskAlternate;
-        if (leftCommandDown || rightCommandDown) newFlags |= kCGEventFlagMaskCommand;
+        // Use centralized method to compute combined flags
+        CGEventFlags newFlags = [self computeCombinedModifierFlags];
         
-        // Update control pressed state for shortcuts
-        controlPressed = leftControlDown || rightControlDown;
-        
-        // Log modifier changes explicitly for debug purposes
-        if (self.debugMode && modifierChanged) {
-            NSString *modifierName = @"unknown";
-            NSString *modifierState = @"unknown";
-            
-            switch (keycode) {
-                case 56: modifierName = @"Left Shift"; modifierState = leftShiftDown ? @"DOWN" : @"UP"; break;
-                case 60: modifierName = @"Right Shift"; modifierState = rightShiftDown ? @"DOWN" : @"UP"; break;
-                case 59: modifierName = @"Left Control"; modifierState = leftControlDown ? @"DOWN" : @"UP"; break;
-                case 62: modifierName = @"Right Control"; modifierState = rightControlDown ? @"DOWN" : @"UP"; break;
-                case 58: modifierName = @"Left Option"; modifierState = leftOptionDown ? @"DOWN" : @"UP"; break;
-                case 61: modifierName = @"Right Option"; modifierState = rightOptionDown ? @"DOWN" : @"UP"; break;
-                case 55: modifierName = @"Left Command"; modifierState = leftCommandDown ? @"DOWN" : @"UP"; break;
-                case 54: modifierName = @"Right Command"; modifierState = rightCommandDown ? @"DOWN" : @"UP"; break;
-            }
-            
-            NSString *debugMsg = [NSString stringWithFormat:@"Modifier: %@ is %@ [cmd:%d ctrl:%d opt:%d shift:%d]\n",
-                               modifierName, modifierState,
-                               (leftCommandDown || rightCommandDown) ? 1 : 0,
-                               (leftControlDown || rightControlDown) ? 1 : 0,
-                               (leftOptionDown || rightOptionDown) ? 1 : 0,
-                               (leftShiftDown || rightShiftDown) ? 1 : 0];
-            
-            if ([NSApp isRunningFromCommandLine]) {
-                printf("%s", [debugMsg UTF8String]);
-                fflush(stdout);
-            } else {
-                [self appendToConsole:debugMsg];
-            }
-        }
-        
-        // Force update the key display with current modifiers state for immediate feedback
+        // Use centralized method to notify UI elements
         if (needsUpdate) {
-            [self updateKeyDisplay:keycode flags:flags isKeyDown:YES];
-            // Also refresh the key display modifiers to ensure it's fully up to date
-            [self refreshKeyDisplayModifiers];
+            [self notifyModifierChanges:keycode flags:flags modifierChanged:modifierChanged];
         }
         
         CGEventSetFlags(event, newFlags);
@@ -163,12 +176,8 @@ BOOL rightOptionDown = NO;
     
     // For normal key events, apply combined modifier states
     if (type == kCGEventKeyDown || type == kCGEventKeyUp) {
-        CGEventFlags newFlags = 0;
-        if (leftShiftDown || rightShiftDown) newFlags |= kCGEventFlagMaskShift;
-        if (leftControlDown || rightControlDown) newFlags |= kCGEventFlagMaskControl;
-        if (leftOptionDown || rightOptionDown) newFlags |= kCGEventFlagMaskAlternate;
-        if (leftCommandDown || rightCommandDown) newFlags |= kCGEventFlagMaskCommand;
-        
+        // Use centralized method to compute combined flags
+        CGEventFlags newFlags = [self computeCombinedModifierFlags];
         CGEventSetFlags(event, newFlags);
     }
 

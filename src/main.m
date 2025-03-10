@@ -9,6 +9,32 @@
 }
 @end
 
+// Function to read version from VERSION file
+NSString* readVersion() {
+    NSString *versionPath = [[NSBundle mainBundle].bundlePath stringByDeletingLastPathComponent];
+    versionPath = [versionPath stringByAppendingPathComponent:@"VERSION"];
+    
+    // If running from app bundle, path is different
+    if (![[NSFileManager defaultManager] fileExistsAtPath:versionPath]) {
+        versionPath = [[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"VERSION"];
+    }
+    
+    // If still not found, try relative path for command line execution
+    if (![[NSFileManager defaultManager] fileExistsAtPath:versionPath]) {
+        versionPath = @"VERSION";
+    }
+    
+    NSError *error = nil;
+    NSString *version = [NSString stringWithContentsOfFile:versionPath 
+                                                 encoding:NSUTF8StringEncoding 
+                                                    error:&error];
+    if (error || !version) {
+        return @"4.0.1"; // Fallback version
+    }
+    
+    return [version stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
 void handleSignal(int sig) {
     [[DualKeyboardManager sharedInstance] cleanup];
     [[DualKeyboardManager sharedInstance] cleanupSingleInstance];
@@ -17,7 +43,7 @@ void handleSignal(int sig) {
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // Initialize NSApplication
+        // Initialize NSApplication and set activation policy
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
         
@@ -30,7 +56,7 @@ int main(int argc, const char * argv[]) {
                 manager.debugMode = YES;
                 manager.debugModeAtStartup = YES;
             } else if ([arg isEqualToString:@"--version"] || [arg isEqualToString:@"-v"]) {
-                printf("DualKeyboard version 4.0.0\n");
+                printf("DualKeyboard version %s\n", [readVersion() UTF8String]);
                 return 0;
             } else if ([arg isEqualToString:@"--help"] || [arg isEqualToString:@"-h"]) {
                 printf("Usage: dual [OPTIONS]\n\n"

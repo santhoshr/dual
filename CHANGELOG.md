@@ -1,5 +1,8 @@
 # Changelog
 
+## [v4.0.1]
+- Code Optimization
+
 ## [v4.0.0]
 - HUD for key monitoring much like KeyCastr
 - consoleWindow for GUI debug messages

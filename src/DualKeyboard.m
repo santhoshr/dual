@@ -4,6 +4,7 @@
 #import "DualKeyboardManager+CapsNavigation.h"
 #import "DualKeyboardManager+MenuBar.h"
 #import "DualKeyboardManager+SingleInstance.h"
+#import "DualKeyboardManager+About.h"  // Add missing import
 
 // Mode constants
 #define MODE_INSERT 'I'
@@ -30,6 +31,11 @@
         _debugModeAtStartup = NO;
         _shouldRestart = NO;
         _currentMode = MODE_INSERT;
+        
+        // Set proper activation policy early
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        // Pre-create the about window during initialization
+        [self createAboutWindowIfNeeded];
     }
     return self;
 }
@@ -71,7 +77,7 @@ static CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type, CGEvent
     
     if (manager.debugMode) {
         // More detailed debug message that includes flag changes
-        NSString *eventTypeStr = @"Unknown";
+        NSString *eventTypeStr;
         switch (type) {
             case kCGEventKeyDown:
                 eventTypeStr = @"KeyDown";
@@ -81,6 +87,9 @@ static CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type, CGEvent
                 break;
             case kCGEventFlagsChanged:
                 eventTypeStr = @"FlagsChanged";
+                break;
+            default:
+                eventTypeStr = @"Unknown";
                 break;
         }
         

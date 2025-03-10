@@ -202,18 +202,8 @@ static char lastWindowFrameKey;
     KeyDisplayWindow *window = self.keyDisplayWindow;
     if (!window) return;
     
-    // Access the combined modifier states from KeyboardMapping
-    extern BOOL leftShiftDown, rightShiftDown;
-    extern BOOL leftControlDown, rightControlDown;
-    extern BOOL leftCommandDown, rightCommandDown;
-    extern BOOL leftOptionDown, rightOptionDown;
-    
-    // Compute combined flags state
-    CGEventFlags combinedFlags = 0;
-    if (leftShiftDown || rightShiftDown) combinedFlags |= kCGEventFlagMaskShift;
-    if (leftControlDown || rightControlDown) combinedFlags |= kCGEventFlagMaskControl;
-    if (leftCommandDown || rightCommandDown) combinedFlags |= kCGEventFlagMaskCommand;
-    if (leftOptionDown || rightOptionDown) combinedFlags |= kCGEventFlagMaskAlternate;
+    // Use centralized method to compute combined flags
+    CGEventFlags combinedFlags = [self computeCombinedModifierFlags];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         // Key display update
@@ -338,22 +328,10 @@ static char lastWindowFrameKey;
     KeyDisplayWindow *window = self.keyDisplayWindow;
     if (!window) return;
     
-    // Access the combined modifier states from KeyboardMapping
-    extern BOOL leftShiftDown, rightShiftDown;
-    extern BOOL leftControlDown, rightControlDown;
-    extern BOOL leftCommandDown, rightCommandDown;
-    extern BOOL leftOptionDown, rightOptionDown;
+    // Use centralized method to compute combined flags
+    CGEventFlags combinedFlags = [self computeCombinedModifierFlags];
     
-    // Compute combined flags state
-    CGEventFlags combinedFlags = 0;
-    if (leftShiftDown || rightShiftDown) combinedFlags |= kCGEventFlagMaskShift;
-    if (leftControlDown || rightControlDown) combinedFlags |= kCGEventFlagMaskControl;
-    if (leftCommandDown || rightCommandDown) combinedFlags |= kCGEventFlagMaskCommand;
-    if (leftOptionDown || rightOptionDown) combinedFlags |= kCGEventFlagMaskAlternate;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self updateModifierButtonsInWindow:window withFlags:combinedFlags];
-    });
+    [self updateModifierButtonsInWindow:window withFlags:combinedFlags];
 }
 
 - (NSString *)humanReadableKeyName:(CGKeyCode)keycode {

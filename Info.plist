@@ -31,7 +31,7 @@
     <key>NSSupportsAutomaticGraphicsSwitching</key>
     <true/>
     <key>CFBundleShortVersionString</key>
-    <string>4.0.0</string>
+    <string>$(APP_VERSION)</string>
     <key>BuildMachineOSBuild</key>
     <string>$(CURRENT_MAC_OS_VERSION)</string>
     <key>DTCompiler</key>
@@ -50,6 +50,8 @@
     <string>$(XCODE_PRODUCT_BUILD_VERSION)</string>
     <key>TeamIdentifier</key>
     <string>$(DEVELOPMENT_TEAM)</string>
+    <key>CFBundleIconFile</key>
+    <string>DualKeyboardLogo</string>
     <key>com.apple.security.application-groups</key>
     <array>
         <string>group.com.santhoshr.dual</string>

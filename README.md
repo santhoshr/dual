@@ -1,6 +1,6 @@
-![Dual Wielding](dual.jpg)
+![DualKeyboard Logo](Resources/DualKeyboardLogo.jpg)
 
-# DualKeyboard v4.0.0
+# DualKeyboard v4.0.1
 
 ## About
 

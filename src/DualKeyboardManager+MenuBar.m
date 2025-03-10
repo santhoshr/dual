@@ -1,6 +1,7 @@
 #import "DualKeyboardManager+MenuBar.h"
 #import "DualKeyboardManager+KeyboardMapping.h"
 #import "DualKeyboardManager+ConsoleWindow.h"
+#import "DualKeyboardManager+About.h"
 #import "NSApplication+CommandLine.h"
 #import <AppKit/AppKit.h>
 #import <objc/runtime.h>
@@ -137,6 +138,9 @@ static char originalStdoutFdKey;
 }
 
 - (void)setupMenuBar {
+    // Ensure proper activation policy is set at startup
+    [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+    
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     self.statusItem.button.title = @"⌨️ I";
     
@@ -170,6 +174,21 @@ static char originalStdoutFdKey;
     [self.statusMenu addItem:keyDisplayItem];
     [self.statusMenu addItem:[NSMenuItem separatorItem]];
     
+    // Add About menu item with proper target retention
+    NSMenuItem *aboutItem = [[NSMenuItem alloc] initWithTitle:@"About DualKeyboard" 
+                                                     action:@selector(showAboutWindow) 
+                                              keyEquivalent:@"i"];
+    aboutItem.keyEquivalentModifierMask = NSEventModifierFlagCommand | NSEventModifierFlagOption;
+    aboutItem.tag = 1005;
+    
+    // Important: Create the about window upfront
+    [self createAboutWindowIfNeeded];
+    
+    // Set target after window is created
+    [aboutItem setTarget:self];
+    [self.statusMenu addItem:aboutItem];
+    [self.statusMenu addItem:[NSMenuItem separatorItem]];
+    
     NSMenuItem *exitItem = [[NSMenuItem alloc] initWithTitle:@"Exit" 
                                                     action:@selector(exitApplication) 
                                              keyEquivalent:@""];
@@ -187,6 +206,9 @@ static char originalStdoutFdKey;
     if (!self.statusItem) return;
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        // Ensure proper activation policy whenever menu updates
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        
         // Update menu bar icon
         NSString *modeTitle = [NSString stringWithFormat:@"⌨️ %c", self.currentMode];
         self.statusItem.button.title = modeTitle;
